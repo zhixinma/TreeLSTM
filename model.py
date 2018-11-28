@@ -7,12 +7,12 @@ from nltk.tree import Tree
 
 
 class N_aryTreeLstm(nn.Block):
-    def __init__(self, dim_h=300, tag_num=66, max_child_num=6, **kwargs):
+    def __init__(self, vocab_size, dim_h=300, tag_num=66, vec_len=300, max_child_num=6, **kwargs):
         super(N_aryTreeLstm, self).__init__(**kwargs)
         with self.name_scope():
             self.dim_vec = pretrain_vec.vec_len
             self.dim_h   = dim_h
-            self.word_embedding = nn.Embedding(len(pretrain_vec), self.dim_vec)
+            self.word_embedding = nn.Embedding(vocab_size, self.dim_vec)
             self.tag_embeding   = nn.Embedding(tag_num, self.dim_vec)
             # input gate
             self.Wi = self.params.get('Wi', shape=(dim_h, self.dim_vec), init=mx.init.Xavier())
