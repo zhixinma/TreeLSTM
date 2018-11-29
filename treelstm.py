@@ -1,19 +1,10 @@
-import mxnet as mx
-import numpy as np
-from mxnet import nd
-from mxnet.gluon import nn, rnn
-from mxnet import autograd
-from nltk.tree import Tree
-
-
 class N_aryTreeLstm(nn.Block):
-    def __init__(self, vocab_size, dim_h=300, tag_num=66, vec_len=300, max_child_num=6, **kwargs):
+    def __init__(self, dim_h=300, vec_len=300, max_child_num=6, **kwargs):
         super(N_aryTreeLstm, self).__init__(**kwargs)
         with self.name_scope():
-            self.dim_vec = pretrain_vec.vec_len
+            self.dim_vec = vec_len
             self.dim_h   = dim_h
-            self.word_embedding = nn.Embedding(vocab_size, self.dim_vec)
-            self.tag_embeding   = nn.Embedding(tag_num, self.dim_vec)
+            self.max_child_num = max_child_num
             # input gate
             self.Wi = self.params.get('Wi', shape=(dim_h, self.dim_vec), init=mx.init.Xavier())
             self.bi = self.params.get('bi', shape=(dim_h, ), init=mx.init.Zero())
@@ -54,7 +45,7 @@ class N_aryTreeLstm(nn.Block):
         for idx in range(len(cs)):
             c = nd.add(c, nd.multiply(f[idx], cs[idx]))
         c = nd.add(nd.multiply(i, u), c)
-        
+
         h = nd.multiply(o, nd.tanh(c))
         return c, h
 
@@ -63,7 +54,10 @@ class N_aryTreeLstm(nn.Block):
         hs = []
         idx_node += 1
         if isinstance(tree, Tree):
-            for child in tree:
+            for child_idx in range(len(tree)):
+                if child_idx == self.max_child_num:
+                    break
+                child = tree[child_idx]
                 c_sub_q, h_sub_q = self.forward(child, inputs, idx_node, ctx)
                 cs.append(c_sub_q)
                 hs.append(h_sub_q)
@@ -72,6 +66,6 @@ class N_aryTreeLstm(nn.Block):
             Input = inputs[idx_node]
             cs.append(Input)
             hs.append(Input)
-
+    
         c_q, h_q = self.nodeforward(Input, cs, hs, ctx)
         return c_q, h_q
