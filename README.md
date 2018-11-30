@@ -6,4 +6,13 @@ An implementation (in **MXNet**) of the N-ary Tree LSTM described in the paper *
 
 **Note: "For large values of N (*the allowed maximum number of child*), these additional parameters are impractical and may be tied or fixed to zero."**
 
- Call function `c, h = self.encoder(tree, inputs, ctx)`
+Requirements:
+ - nltk
+ - mxnet
+
+Usage example: 
+`
+encoder = N_aryTreeLstm()
+encoder.initialize(ctx=ctx)
+c, h = self.encoder(tree, inputs, ctx)
+`
