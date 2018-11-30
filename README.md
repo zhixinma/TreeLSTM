@@ -4,3 +4,6 @@ An implementation (in **MXNet**) of the N-ary Tree LSTM described in the paper *
 
 ![equation](https://github.com/mzx5464/N-aryTreeLSTM/blob/master/asset/equation.png)
 
+**Note: "For large values of N (*the allowed maximum number of child*), these additional parameters are impractical and may be tied or fixed to zero."**
+
+ Call function `output, states = self.encoder(tree, inputs, ctx)`
