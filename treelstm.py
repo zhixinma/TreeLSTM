@@ -1,3 +1,10 @@
+import mxnet as mx
+import numpy as np
+from mxnet import nd
+from mxnet.gluon import nn, rnn
+from nltk.tree import Tree
+
+
 class N_aryTreeLstm(nn.Block):
     def __init__(self, dim_h=300, vec_len=300, max_child_num=6, **kwargs):
         super(N_aryTreeLstm, self).__init__(**kwargs)
@@ -36,10 +43,10 @@ class N_aryTreeLstm(nn.Block):
             for j in range(len(cs)):
                 _Uf[idx] = nd.add(_Uf[idx], nd.dot(self.Ufs[idx][j].data(), hs[j]))
 
-        i =  nd.sigmoid(nd.add(nd.add(nd.dot(self.Wi.data(), x), _Ui), self.bi.data()))
-        o =  nd.sigmoid(nd.add(nd.add(nd.dot(self.Wo.data(), x), _Uo), self.bo.data()))
+        i = nd.sigmoid(nd.add(nd.add(nd.dot(self.Wi.data(), x), _Ui), self.bi.data()))
+        o = nd.sigmoid(nd.add(nd.add(nd.dot(self.Wo.data(), x), _Uo), self.bo.data()))
         f = [nd.sigmoid(nd.add(nd.add(nd.dot(self.Wf.data(), x), _Uf[idx]), self.bf.data())) for idx in range(len(cs))]
-        u =  nd.tanh   (nd.add(nd.add(nd.dot(self.Wu.data(), x), _Uu), self.bu.data()))
+        u = nd.tanh(nd.add(nd.add(nd.dot(self.Wu.data(), x), _Uu), self.bu.data()))
 
         c =  nd.zeros((self.dim_h, ), ctx=ctx)
         for idx in range(len(cs)):
@@ -52,6 +59,7 @@ class N_aryTreeLstm(nn.Block):
     def forward(self, tree, inputs, idx_node, ctx):
         cs = []
         hs = []
+        this_idx = idx_node
         idx_node += 1
         if isinstance(tree, Tree):
             for child_idx in range(len(tree)):
@@ -59,13 +67,14 @@ class N_aryTreeLstm(nn.Block):
                     break
                 child = tree[child_idx]
                 c_sub_q, h_sub_q = self.forward(child, inputs, idx_node, ctx)
+                idx_node += (len(child.treepositions()) if isinstance(child, Tree) else 1)
                 cs.append(c_sub_q)
                 hs.append(h_sub_q)
-            Input = inputs[idx_node]
+            Input = inputs[this_idx]
         else:
-            Input = inputs[idx_node]
+            Input = inputs[this_idx]
             cs.append(Input)
             hs.append(Input)
-    
+
         c_q, h_q = self.nodeforward(Input, cs, hs, ctx)
         return c_q, h_q
