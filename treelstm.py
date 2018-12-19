@@ -78,3 +78,8 @@ class N_aryTreeLstm(nn.Block):
 
         c_q, h_q = self.nodeforward(Input, cs, hs, ctx)
         return c_q, h_q
+    
+    def forward_iterative(self, tree, inputs, idx_node, ctx):
+        c_q = 0
+        h_q = 0
+        return c_q, h_q
