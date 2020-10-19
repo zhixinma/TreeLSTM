@@ -22,5 +22,5 @@ encoder = N_aryTreeLstm()
 
 encoder.initialize(ctx=ctx)
 
-c, h = self.encoder(tree, inputs, ctx)
+c, h = self.encoder(tree, inputs, 0, ctx)
 ```
