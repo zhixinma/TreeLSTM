@@ -1,6 +1,3 @@
-import torch
-import torch.nn as nn
-
 class NaryTreeLSTM(nn.Module):
     def __init__(self, dim_h=500, vec_len=500, max_child_num=6):
         super(NaryTreeLSTM, self).__init__()
